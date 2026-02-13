@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Математически Пазар - Игра с Десетични Дроби</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .game-area {
+            background: #f9fafb;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .question-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .question-context {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .math-problem {
+            font-size: 2em;
+            color: #667eea;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5em;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .answer-input.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .answer-input.incorrect {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e7ff;
+            color: #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #c7d2fe;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        .feedback.hint {
+            background: #fef3c7;
+            color: #92400e;
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .final-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .final-screen h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .trophy {
+            font-size: 5em;
+            margin: 20px 0;
+        }
+
+        .final-stats {
+            background: #f9fafb;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 1.2em;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .bounce {
+            animation: bounce 0.5s;
+        }
+
+        .emoji {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .attempts {
+            text-align: center;
+            color: #666;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        .hint-box {
+            background: #fffbeb;
+            border: 2px solid #fbbf24;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+        }
+
+        .hint-title {
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .hint-content {
+            color: #78350f;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🛒 Математически Пазар</h1>
+            <p>Упражни умножение на десетични дроби!</p>
+        </div>
+
+        <div id="gameScreen">
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="score-label">Точки</div>
+                    <div class="score-value" id="score">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Решени</div>
+                    <div class="score-value" id="solved">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Общо</div>
+                    <div class="score-value" id="total">25</div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar">
+                    <span id="progressText">Задача 1 от 25</span>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="section-title" id="sectionTitle">
+                    📦 Задача 1а - Щанд "Плодове и зеленчуци"
+                </div>
+                
+                <div class="question-box">
+                    <div class="emoji" id="emoji">🍓</div>
+                    <div class="question-context" id="questionContext">
+                        Купуваме 3,4 кг ягоди по 5,6 лв/кг. Колко ще платим?
+                    </div>
+                    <div class="math-problem" id="mathProblem">
+                        5,6 × 3,4 = ?
+                    </div>
+                    <input 
+                        type="text" 
+                        class="answer-input" 
+                        id="answerInput" 
+                        placeholder="Въведи отговора..."
+                        autofocus
+                    >
+                    <div class="attempts" id="attempts"></div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="checkAnswer()">✓ Провери</button>
+                        <button class="btn btn-secondary" onclick="showHint()" id="hintBtn">💡 Подсказка</button>
+                    </div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="hint-box" id="hintBox">
+                        <div class="hint-title">💡 Подсказка:</div>
+                        <div class="hint-content" id="hintContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="finalScreen" class="final-screen">
+            <h2>🎉 Браво! Завърши всички задачи!</h2>
+            <div class="trophy" id="trophy">🏆</div>
+            <div class="final-stats">
+                <div class="stat-row">
+                    <span>Общо точки:</span>
+                    <span id="finalScore">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Решени задачи:</span>
+                    <span id="finalSolved">0 / 25</span>
+                </div>
+                <div class="stat-row">
+                    <span>Общо опити:</span>
+                    <span id="finalAttempts">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Средна точност:</span>
+                    <span id="finalAccuracy">0%</span>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="restartGame()" style="width: 100%; margin-top: 20px;">
+                🔄 Играй отново
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Задача 1а - Щанд "Плодове и зеленчуци"
+            {
+                section: '📦 Задача 1а - Щанд "Плодове и зеленчуци"',
+                context: "🍓 Купуваме 3,4 кг ягоди по 5,6 лв/кг. Колко ще платим?",
+                problem: "5,6 × 3,4",
+                answer: 19.04,
+                emoji: "🍓",
+                hint: "Умножи 56 × 34 = 1904. После постави запетая, отчитайки 2 цифри отдясно (защото 5,6 има 1 цифра след запетаята и 3,4 има 1 цифра = общо 2)."
+            },
+            {
+                section: '📦 Задача 1а - Щанд "Плодове и зеленчуци"',
+                context: "🍅 Купуваме 2,5 кг домати по 7,8 лв/кг. Колко струват?",
+                problem: "7,8 × 2,5",
+                answer: 19.5,
+                emoji: "🍅",
+                hint: "Умножи 78 × 25 = 1950. Постави запетая 2 цифри отдясно: 19,50 = 19,5"
+            },
+            {
+                section: '📦 Задача 1а - Щанд "Плодове и зеленчуци"',
+                context: "🍐 Купуваме 4,3 кг круши по 9,2 лв/кг. Каква е цената?",
+                problem: "9,2 × 4,3",
+                answer: 39.56,
+                emoji: "🍐",
+                hint: "Умножи 92 × 43 = 3956. Постави запетая 2 цифри отдясно: 39,56"
+            },
+            {
+                section: '📦 Задача 1а - Щанд "Плодове и зеленчуци"',
+                context: "🥕 Купуваме 1,8 кг моркови по 6,7 лв/кг. Колко ще платим?",
+                problem: "6,7 × 1,8",
+                answer: 12.06,
+                emoji: "🥕",
+                hint: "Умножи 67 × 18 = 1206. Постави запетая 2 цифри отдясно: 12,06"
+            },
+            {
+                section: '📦 Задача 1а - Щанд "Плодове и зеленчуци"',
+                context: "🥔 Купуваме 2,6 кг картофи по 8,4 лв/кг. Колко струват?",
+                problem: "8,4 × 2,6",
+                answer: 21.84,
+                emoji: "🥔",
+                hint: "Умножи 84 × 26 = 2184. Постави запетая 2 цифри отдясно: 21,84"
+            },
+            
+            // Задача 1б - Щанд "Напитки"
+            {
+                section: '🥤 Задача 1б - Щанд "Напитки"',
+                context: "🧃 Бутилката съдържа 14,5 литра сок. Наливаме 0,6 от количеството. Колко литра наляхме?",
+                problem: "14,5 × 0,6",
+                answer: 8.7,
+                emoji: "🧃",
+                hint: "Умножи 145 × 6 = 870. Постави запетая 2 цифри отдясно: 8,70 = 8,7"
+            },
+            {
+                section: '🥤 Задача 1б - Щанд "Напитки"',
+                context: "🍹 В шишето има 18,7 литра сок. Използваме 0,4 от него. Колко литра използвахме?",
+                problem: "18,7 × 0,4",
+                answer: 7.48,
+                emoji: "🍹",
+                hint: "Умножи 187 × 4 = 748. Постави запетая 2 цифри отдясно: 7,48"
+            },
+            {
+                section: '🥤 Задача 1б - Щанд "Напитки"',
+                context: "🥤 В каната има 25,3 литра лимонада. Изпиваме 0,7 от нея. Колко литра изпихме?",
+                problem: "25,3 × 0,7",
+                answer: 17.71,
+                emoji: "🥤",
+                hint: "Умножи 253 × 7 = 1771. Постави запетая 2 цифри отдясно: 17,71"
+            },
+            {
+                section: '🥤 Задача 1б - Щанд "Напитки"',
+                context: "💧 В резервоара има 32,8 литра вода. Бутилираме 0,5 от нея. Колко литра бутилирахме?",
+                problem: "32,8 × 0,5",
+                answer: 16.4,
+                emoji: "💧",
+                hint: "Умножи 328 × 5 = 1640. Постави запетая 2 цифри отдясно: 16,40 = 16,4"
+            },
+            {
+                section: '🥤 Задача 1б - Щанд "Напитки"',
+                context: "🧋 В съда има 41,6 литра нектар. Продаваме 0,3 от количеството. Колко литра продадохме?",
+                problem: "41,6 × 0,3",
+                answer: 12.48,
+                emoji: "🧋",
+                hint: "Умножи 416 × 3 = 1248. Постави запетая 2 цифри отдясно: 12,48"
+            },
+
+            // Задача 1в - Онлайн поръчки (малки десетични)
+            {
+                section: '📦 Задача 1в - Онлайн поръчки',
+                context: "🌶️ Пликчето съдържа 0,35 кг чушлек. Поръчваме 0,4 от него. Колко килограма е това?",
+                problem: "0,35 × 0,4",
+                answer: 0.14,
+                emoji: "🌶️",
+                hint: "Умножи 35 × 4 = 140. Постави запетая 3 цифри отдясно (0,35 има 2 + 0,4 има 1 = общо 3): 0,140 = 0,14"
+            },
+            {
+                section: '📦 Задача 1в - Онлайн поръчки',
+                context: "🍚 Опаковката е 0,72 кг ориз. Използваме 0,5 от нея за рецепта. Колко килограма ориз ни трябва?",
+                problem: "0,72 × 0,5",
+                answer: 0.36,
+                emoji: "🍚",
+                hint: "Умножи 72 × 5 = 360. Постави запетая 3 цифри отдясно: 0,360 = 0,36"
+            },
+            {
+                section: '📦 Задача 1в - Онлайн поръчки',
+                context: "☕ Пробната опаковка е 0,48 кг кафе. Изпробваме 0,6 от нея. Колко килограма изпробваме?",
+                problem: "0,48 × 0,6",
+                answer: 0.288,
+                emoji: "☕",
+                hint: "Умножи 48 × 6 = 288. Постави запетая 3 цифри отдясно: 0,288"
+            },
+            {
+                section: '📦 Задача 1в - Онлайн поръчки',
+                context: "🍬 В пакетчето има 0,96 кг захар. Използваме 0,3 от него за сладкиш. Колко килограма използваме?",
+                problem: "0,96 × 0,3",
+                answer: 0.288,
+                emoji: "🍬",
+                hint: "Умножи 96 × 3 = 288. Постави запетая 3 цифри отдясно: 0,288"
+            },
+            {
+                section: '📦 Задача 1в - Онлайн поръчки',
+                context: "🍵 Опаковката съдържа 0,84 кг чай. Опитваме 0,2 от нея. Колко килограма опитваме?",
+                problem: "0,84 × 0,2",
+                answer: 0.168,
+                emoji: "🍵",
+                hint: "Умножи 84 × 2 = 168. Постави запетая 3 цифри отдясно: 0,168"
+            },
+
+            // Задача 2 - Умножение и закръгляне до 0,1
+            {
+                section: '🟢 Задача 2 - Умножете и закръглете до 0,1',
+                context: "🍒 Купуваме 1,4 кг вишни по 17,26 лв/кг. Колко ще платим? (закръгли до 0,1 лв)",
+                problem: "17,26 × 1,4",
+                answer: 24.2,
+                emoji: "🍒",
+                hint: "Умножи 1726 × 14 = 24164. Постави запетая 3 цифри отдясно: 24,164. Закръгли до 0,1: втората цифра е 6 (≥5), затова 24,2"
+            },
+            {
+                section: '🟢 Задача 2 - Умножете и закръглете до 0,1',
+                context: "🍑 Купуваме 1,2 кг праскови по 28,35 лв/кг. Каква е цената? (закръгли до 0,1 лв)",
+                problem: "28,35 × 1,2",
+                answer: 34.0,
+                emoji: "🍑",
+                hint: "Умножи 2835 × 12 = 34020. Постави запетая 3 цифри отдясно: 34,020. Закръгли до 0,1: втората цифра е 2 (<5), затова 34,0"
+            },
+            {
+                section: '🟢 Задача 2 - Умножете и закръглете до 0,1',
+                context: "🍇 Купуваме 0,9 кг грозде по 34,78 лв/кг. Колко струва? (закръгли до 0,1 лв)",
+                problem: "34,78 × 0,9",
+                answer: 31.3,
+                emoji: "🍇",
+                hint: "Умножи 3478 × 9 = 31302. Постави запетая 3 цифри отдясно: 31,302. Закръгли до 0,1: втората цифра е 0 (<5), но третата влияе - резултат 31,3"
+            },
+            {
+                section: '🟢 Задача 2 - Умножете и закръглете до 0,1',
+                context: "🫐 Купуваме 0,8 кг боровинки по 49,63 лв/кг. Колко ще платим? (закръгли до 0,1 лв)",
+                problem: "49,63 × 0,8",
+                answer: 39.7,
+                emoji: "🫐",
+                hint: "Умножи 4963 × 8 = 39704. Постави запетая 3 цифри отдясно: 39,704. Закръгли до 0,1: втората цифра е 0 (<5), затова 39,7"
+            },
+            {
+                section: '🟢 Задача 2 - Умножете и закръглете до 0,1',
+                context: "🍓 Купуваме 0,6 кг малини по 52,47 лв/кг. Каква е цената? (закръгли до 0,1 лв)",
+                problem: "52,47 × 0,6",
+                answer: 31.5,
+                emoji: "🍓",
+                hint: "Умножи 5247 × 6 = 31482. Постави запетая 3 цифри отдясно: 31,482. Закръгли до 0,1: втората цифра е 8 (≥5), затова 31,5"
+            },
+
+            // Упражнение за самостоятелна работа
+            {
+                section: '✏️ Упражнение за самостоятелна работа',
+                context: "🥒 Купуваме 2,3 кг краставици по 4,5 лв/кг. Колко ще платим?",
+                problem: "4,5 × 2,3",
+                answer: 10.35,
+                emoji: "🥒",
+                hint: "Умножи 45 × 23 = 1035. Постави запетая 2 цифри отдясно: 10,35"
+            },
+            {
+                section: '✏️ Упражнение за самостоятелна работа',
+                context: "🍊 В торбата има 16,8 кг мандарини. Продаваме 0,5 от тях. Колко килограма продадохме?",
+                problem: "16,8 × 0,5",
+                answer: 8.4,
+                emoji: "🍊",
+                hint: "Умножи 168 × 5 = 840. Постави запетая 2 цифри отдясно: 8,40 = 8,4"
+            },
+            {
+                section: '✏️ Упражнение за самостоятелна работа',
+                context: "🫐 Малката кошничка съдържа 0,45 кг къпини. Използваме 0,8 от нея за сладко. Колко килограма използваме?",
+                problem: "0,45 × 0,8",
+                answer: 0.36,
+                emoji: "🫐",
+                hint: "Умножи 45 × 8 = 360. Постави запетая 3 цифри отдясно: 0,360 = 0,36"
+            },
+            {
+                section: '✏️ Упражнение за самостоятелна работа',
+                context: "🍓 Купуваме 1,3 кг ягоди по 23,47 лв/кг. Колко ще платим? (закръгли до 0,1 лв)",
+                problem: "23,47 × 1,3",
+                answer: 30.5,
+                emoji: "🍓",
+                hint: "Умножи 2347 × 13 = 30511. Постави запетая 3 цифри отдясно: 30,511. Закръгли до 0,1: втората цифра е 1 (<5), но третата е 1 - резултат 30,5"
+            },
+
+            // Бонус задачи
+            {
+                section: '🎁 Бонус задачи',
+                context: "🍉 Купуваме 3,2 кг диня по 4,8 лв/кг. Колко ще платим?",
+                problem: "4,8 × 3,2",
+                answer: 15.36,
+                emoji: "🍉",
+                hint: "Умножи 48 × 32 = 1536. Постави запетая 2 цифри отдясно: 15,36"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let solvedQuestions = 0;
+        let totalAttempts = 0;
+        let currentAttempts = 0;
+        let hintUsed = false;
+
+        function loadQuestion() {
+            if (currentQuestion >= questions.length) {
+                showFinalScreen();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            document.getElementById('sectionTitle').textContent = q.section;
+            document.getElementById('emoji').textContent = q.emoji;
+            document.getElementById('questionContext').textContent = q.context;
+            document.getElementById('mathProblem').textContent = q.problem + " = ?";
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').className = 'answer-input';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('hintBox').classList.remove('show');
+            document.getElementById('hintContent').textContent = q.hint;
+            document.getElementById('attempts').textContent = '';
+            
+            currentAttempts = 0;
+            hintUsed = false;
+            
+            updateProgress();
+            document.getElementById('answerInput').focus();
+        }
+
+        function updateProgress() {
+            const progress = ((solvedQuestions) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Задача ${currentQuestion + 1} от ${questions.length}`;
+            document.getElementById('solved').textContent = solvedQuestions;
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseFloat(document.getElementById('answerInput').value.replace(',', '.'));
+            const correctAnswer = questions[currentQuestion].answer;
+            const feedback = document.getElementById('feedback');
+            const answerInput = document.getElementById('answerInput');
+
+            if (isNaN(userAnswer)) {
+                feedback.textContent = '⚠️ Моля, въведи число!';
+                feedback.className = 'feedback incorrect';
+                answerInput.classList.add('shake');
+                setTimeout(() => answerInput.classList.remove('shake'), 500);
+                return;
+            }
+
+            currentAttempts++;
+            totalAttempts++;
+
+            if (Math.abs(userAnswer - correctAnswer) < 0.01) {
+                // Верен отговор
+                feedback.textContent = '✓ Браво! Верен отговор!';
+                feedback.className = 'feedback correct';
+                answerInput.classList.add('correct');
+                
+                // Начисляване на точки
+                let points = 10;
+                if (currentAttempts === 1 && !hintUsed) {
+                    points = 10; // Пълни точки
+                } else if (currentAttempts === 1 && hintUsed) {
+                    points = 7; // С подсказка от първи път
+                } else if (currentAttempts === 2) {
+                    points = 5; // От втори опит
+                } else {
+                    points = 3; // От трети или повече опити
+                }
+                
+                score += points;
+                solvedQuestions++;
+                
+                document.getElementById('score').classList.add('bounce');
+                setTimeout(() => document.getElementById('score').classList.remove('bounce'), 500);
+                
+                updateScoreboard();
+                
+                setTimeout(() => {
+                    currentQuestion++;
+                    loadQuestion();
+                }, 1500);
+            } else {
+                // Грешен отговор
+                feedback.textContent = `✗ Грешен отговор! Опитай отново.`;
+                feedback.className = 'feedback incorrect';
+                answerInput.classList.add('incorrect');
+                answerInput.classList.add('shake');
+                setTimeout(() => {
+                    answerInput.classList.remove('shake');
+                }, 500);
+                
+                document.getElementById('attempts').textContent = `Опити: ${currentAttempts}`;
+                
+                // Автоматично показване на подсказка след 2 грешни опита
+                if (currentAttempts >= 2) {
+                    showHint();
+                }
+            }
+        }
+
+        function showHint() {
+            document.getElementById('hintBox').classList.add('show');
+            hintUsed = true;
+        }
+
+        function updateScoreboard() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('solved').textContent = solvedQuestions;
+        }
+
+        function showFinalScreen() {
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('finalScreen').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalSolved').textContent = solvedQuestions + ' / ' + questions.length;
+            document.getElementById('finalAttempts').textContent = totalAttempts;
+            
+            const accuracy = Math.round((solvedQuestions / totalAttempts) * 100);
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            
+            let trophy = '🏆';
+            if (score >= 230) trophy = '🏆🌟🎖️'; // Почти перфектно
+            else if (score >= 180) trophy = '🏆🌟';
+            else if (score >= 130) trophy = '🏆';
+            else if (score >= 80) trophy = '🥈';
+            else trophy = '🥉';
+            
+            document.getElementById('trophy').textContent = trophy;
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            solvedQuestions = 0;
+            totalAttempts = 0;
+            
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('finalScreen').style.display = 'none';
+            
+            updateScoreboard();
+            loadQuestion();
+        }
+
+        // Enter key to submit
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Start the game
+        loadQuestion();
+    </script>
+</body>
+</html>
